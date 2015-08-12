@@ -144,3 +144,13 @@ class SpeakerForm(messages.Message):
     """SpeakerForm -- Speaker outbound form message"""
     speaker = messages.StringField(1)
     sessionNames = messages.StringField(2, repeated=True)
+
+class Speaker(ndb.Model):
+    """Speaker -- Speaker object"""
+    displayName = ndb.StringProperty(required=True)
+    profileKey = ndb.StringProperty() #if speaker is also an attendee
+    biography = ndb.StringProperty()
+
+class SpeakerForms(messages.Message):
+    """SpeakerForm -- multiple Speaker outbound form message"""
+    items = messages.MessageField(SpeakerForm, 1, repeated=True)

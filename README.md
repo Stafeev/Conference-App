@@ -27,7 +27,17 @@ App Engine application for the Udacity training course.
 ## Task 1
 Session and Speaker classes were first implemented in models.py. Conference.py contains corresponding endpoints and methods.
 ## Task 2
-TODO
+addSessionToWishlist: given a session websafe key, saves a session to a user's wishlist.
+getSessionsInWishlist: return a user's wishlist.
+## Task 3
+getConferenceSessionFeed: returns a conference's sorted feed sessions occurring after today.
+getSpeakers: returns all speakers
+
+It appearts to be BadRequestError to filter on both startDate and typeOfSession.
+So we need to check this in Python code inside method queryProblem(self, request).
+## Task 4
+getFeaturedSpeaker() checks the speaker when a new session is added to a conference
+If there is more than one session by this speaker at this conference it add a new Memcache entry that features the speaker and session names. 
 
 [1]: https://developers.google.com/appengine
 [2]: http://python.org
