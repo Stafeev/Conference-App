@@ -24,10 +24,10 @@
       <file leaf-file-name="conference.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/conference.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.41877794">
-              <caret line="847" column="63" selection-start-line="847" selection-start-column="63" selection-end-line="847" selection-end-column="63" />
+            <state vertical-scroll-proportion="0.37553957">
+              <caret line="771" column="32" selection-start-line="771" selection-start-column="32" selection-end-line="771" selection-end-column="32" />
               <folding>
-                <element signature="e#167#196#0" expanded="true" />
+                <element signature="e#166#195#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -48,8 +48,8 @@
       <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="151" column="36" selection-start-line="151" selection-start-column="36" selection-end-line="151" selection-end-column="36" />
+            <state vertical-scroll-proportion="-7.6296296">
+              <caret line="129" column="20" selection-start-line="129" selection-start-column="20" selection-end-line="129" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -97,7 +97,7 @@
   <component name="ProjectFrameBounds">
     <option name="y" value="23" />
     <option name="width" value="1420" />
-    <option name="height" value="795" />
+    <option name="height" value="819" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -287,7 +287,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1420" height="795" extended-state="0" />
+    <frame x="0" y="23" width="1420" height="819" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -396,18 +396,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="151" column="36" selection-start-line="151" selection-start-column="36" selection-end-line="151" selection-end-column="36" />
+        <state vertical-scroll-proportion="-7.6296296">
+          <caret line="129" column="20" selection-start-line="129" selection-start-column="20" selection-end-line="129" selection-end-column="20" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/conference.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.41877794">
-          <caret line="847" column="63" selection-start-line="847" selection-start-column="63" selection-end-line="847" selection-end-column="63" />
+        <state vertical-scroll-proportion="0.37553957">
+          <caret line="771" column="32" selection-start-line="771" selection-start-column="32" selection-end-line="771" selection-end-column="32" />
           <folding>
-            <element signature="e#167#196#0" expanded="true" />
+            <element signature="e#166#195#0" expanded="true" />
           </folding>
         </state>
       </provider>

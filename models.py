@@ -127,6 +127,7 @@ class SessionForm(messages.Message):
     typeOfSession   = messages.StringField(5)
     date            = messages.StringField(6) #DateTimeField()
     startTime       = messages.StringField(7)
+    websafeKey      = messages.StringField(8)
 
 class SessionForms(messages.Message):
     """SessionForms -- multiple Session outbound form message"""
@@ -144,6 +145,7 @@ class SpeakerForm(messages.Message):
     """SpeakerForm -- Speaker outbound form message"""
     speaker = messages.StringField(1)
     sessionNames = messages.StringField(2, repeated=True)
+    websafeKey = messages.StringField(3)
 
 class Speaker(ndb.Model):
     """Speaker -- Speaker object"""
