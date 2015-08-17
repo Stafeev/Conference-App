@@ -27,6 +27,7 @@ class Profile(ndb.Model):
     mainEmail = ndb.StringProperty()
     teeShirtSize = ndb.StringProperty(default='NOT_SPECIFIED')
     conferenceKeysToAttend = ndb.StringProperty(repeated=True)
+    sessionKeysWishList = ndb.StringProperty(repeated=True)
 
 class ProfileMiniForm(messages.Message):
     """ProfileMiniForm -- update Profile form message"""
@@ -117,6 +118,7 @@ class Session(ndb.Model):
     typeOfSession   = ndb.StringProperty()
     date            = ndb.DateProperty()
     startTime       = ndb.TimeProperty()
+    speakerKey = ndb.StringProperty()
 
 class SessionForm(messages.Message):
     """SessionForm -- Session outbound form message"""
@@ -125,9 +127,10 @@ class SessionForm(messages.Message):
     speaker         = messages.StringField(3)
     duration        = messages.IntegerField(4)
     typeOfSession   = messages.StringField(5)
-    date            = messages.StringField(6) #DateTimeField()
+    date            = messages.StringField(6)
     startTime       = messages.StringField(7)
     websafeKey      = messages.StringField(8)
+    speakerKey      = messages.StringField(9)
 
 class SessionForms(messages.Message):
     """SessionForms -- multiple Session outbound form message"""
@@ -143,14 +146,15 @@ class SessionQueryForms(messages.Message):
 
 class SpeakerForm(messages.Message):
     """SpeakerForm -- Speaker outbound form message"""
-    speaker = messages.StringField(1)
-    sessionNames = messages.StringField(2, repeated=True)
-    websafeKey = messages.StringField(3)
+    displayName = messages.StringField(1)
+    profileKey = messages.StringField(2)
+    biography = messages.StringField(3)
+    websafeKey = messages.StringField(4)
 
 class Speaker(ndb.Model):
     """Speaker -- Speaker object"""
     displayName = ndb.StringProperty(required=True)
-    profileKey = ndb.StringProperty() #if speaker is also an attendee
+    profileKey = ndb.StringProperty()
     biography = ndb.StringProperty()
 
 class SpeakerForms(messages.Message):
