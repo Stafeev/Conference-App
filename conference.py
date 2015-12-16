@@ -614,7 +614,7 @@ class ConferenceApi(remote.Service):
 
         data['key'] = s_key
         #check if a session is added by a conference organizer
-        if (user.user_id()==c_key):
+        if (getUserId(user)==c_key):
             raise endpoints.UnauthorizedException('Session can be added only by conference organizer')
 
         # create Session object and put it into DB

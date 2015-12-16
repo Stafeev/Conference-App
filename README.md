@@ -35,7 +35,8 @@ Base class Session has the following fileds:
     date            = ndb.DateProperty()
     startTime       = ndb.TimeProperty()
     speakerKey      = ndb.StringProperty()
-Speaker class is impelemnted with the following fields:
+speakerKey is a speakerID key. Speaker is the name of the speaker and it's used in getSessionsBySpeaker, for example, to query sessions by Speaker name.
+Speaker class is implemented with the following fields:
     displayName = ndb.StringProperty(required=True)
     profileKey = ndb.StringProperty() - profile key is used if speaker is also an atendee
     biography = ndb.StringProperty()
@@ -48,6 +49,10 @@ For Sessions:
     getSessionsBySpeaker(self, request) - return requested sessions (by speaker)
     _sessionAdd(self, request) is used to add sessions from user's list of sessions (sessionKeysWishList)
     _sessionRemove(self, request) is used to delete sessions from user's list of sessions (sessionKeysWishList)
+The flow of calls
+    create a conference
+    create a speaker
+    create a session, using the speaker key returned in the second step
 ## Task 2
 I added to profile class field sessionKeysWishList = ndb.StringProperty(repeated=True) to store a wishlist of sessions.Also we have to followng endpoint methods.
 
@@ -68,6 +73,8 @@ Queries are only allowed to have one inequality filter, and it would cause a Bad
 So we need to code this inside method queryProblem(self, request):
         sessionsByStartTime = Session.query(Session.startTime < request.startTime)
         sessionsByType = Session.query(Session.typeOfSession == request.typeOfSession)
+Here we choose all sessions which starttime is before requested start time (7 am, for example).
+Then we query sessions by type. Then we iterate over sessionsByType and check that this session is not in sessionsByStartTime and then add it to the dictionary and output the result.
 ## Task 4
 getFeaturedSpeaker() checks the speaker when a new session is added to a conference.
 Featured Speakers are stored in MEMCACHE_SPEAKER_KEY and set in _createSessionObject method.
