@@ -600,28 +600,31 @@ class ConferenceApi(remote.Service):
         for df in SESSION_DEF:
             if data[df] in (None, []):
                 data[df] = SESSION_DEF[df]
-                setattr(request, df, SESSION_DEF[df])
 
         # convert dates from strings to Date objects
         if data['date']:
-            data['date'] = datetime.strptime(data['date'][:10], "%Y-%m-%d").date()
+            data['date'] = datetime.strptime(data['date'][:10], "%H:%M").time()
 
         # generate Conference Key from webSafeConferenceKey
         # allocate session's id by setting conference key as a parent
         c_key = ndb.Key(urlsafe=request.websafeConferenceKey)
         s_id = Session.allocate_ids(size=1, parent=c_key)[0]
         s_key = ndb.Key(Session, s_id, parent=c_key)
+        conf = c_key.get()
+        confOrganizerId=ndb.Key(Profile, conf.organizerUserId)
 
         data['key'] = s_key
         #check if a session is added by a conference organizer
-        if (getUserId(user)==c_key):
+        if (getUserId(user)!=confOrganizerId):
             raise endpoints.UnauthorizedException('Session can be added only by conference organizer')
 
         # create Session object and put it into DB
         Session(**data).put()
 
         # setting featured speaker and sessions.
-        taskqueue.add(params={'speakerKey': data['speakerKey'], 'speakerDisplayName': data['speaker']},
+        #taskqueue.add(params={'speakerKey': data['speakerKey'], 'speakerDisplayName': data['speaker']},
+        #              url='/tasks/set_featured_speaker')
+        taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key},
                       url='/tasks/set_featured_speaker')
 
         # return SessionForm object
@@ -710,19 +713,17 @@ class ConferenceApi(remote.Service):
         return SessionForms(
             items=[self._copySessionToForm(sess) for sess in sessions]
         )
-
+    """
     @endpoints.method(SessionQueryForms, SessionForms,
                       path='querySessions',
-                      http_method='POST',
+                      http_method='GET',
                       name='querySessions')
     def querySessions(self, request):
-        """Query for sessions. This query can be used with various filters."""
         sessions = self._getSessionQuery(request)
-
         return SessionForms(
             items=[self._copySessionToForm(sess) for sess in sessions]
         )
-
+    """
     @endpoints.method(message_types.VoidMessage, StringMessage,
                       http_method='GET', name='getFeaturedSpeaker')
     def getFeaturedSpeaker(self, request):
@@ -745,16 +746,6 @@ class ConferenceApi(remote.Service):
 
         prof.put()
 
-        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-        p_key = conf.key()
-        sessions = Session.query(Session.speaker == self.getFeaturedSpeaker(),
-                                 ancestor=p_key)
-
-        if len(list(sessions)) > 1:
-            cache_data = {}
-            cache_data['speaker'] = self.getFeaturedSpeaker()
-            cache_data['sessionNames'] = [session.name for session in sessions]
-
         return BooleanMessage(data=result)
 
     def _sessionRemove(self, request):
@@ -766,20 +757,11 @@ class ConferenceApi(remote.Service):
             raise endpoints.NotFoundException(
                 'No Session found with key: %s' % wssk)
         if wssk in prof.sessionKeysWishList:
-            prof.sessionKeysToWishlist.remove(wssk)
+            prof.sessionKeysWishList.remove(wssk)
             result = True
         else:
             result = False
         prof.put()
-
-        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-        p_key = conf.key()
-        sessions = Session.query(Session.speaker == self.getFeaturedSpeaker(),
-                                 ancestor=p_key)
-        if len(list(sessions)) > 1:
-            cache_data = {}
-            cache_data['speaker'] = self.getFeaturedSpeaker()
-            cache_data['sessionNames'] = [session.name for session in sessions]
 
         return BooleanMessage(data=result)
 
@@ -807,7 +789,7 @@ class ConferenceApi(remote.Service):
                       http_method='GET',
                       name='queryProblem')
     def queryProblem(self, request):
-        startTime = datetime.strptime(request.startTime, "%H%M").time()
+        startTime = datetime.strptime(request.startTime, "%H:%M").time()
         sessionsByStartTime = Session.query(Session.startTime < startTime)
         sessionsByType = Session.query(Session.typeOfSession == request.typeOfSession)
         # final output is stored in solutionQueries array
