@@ -35,7 +35,7 @@ class SendConfirmationEmailHandler(webapp2.RequestHandler):
 
 class SetFeaturedSpeakerHandler(webapp2.RequestHandler):
     def post(self):
-        c_key = ndb.Key(urlsafe=self.request.get('id'))
+        c_key =ndb.Key(urlsafe=self.request.websafeConferenceKey)
         confSessions = Session.query(ancestor=c_key)
         # get all speakers
         speakers = Speaker.query()

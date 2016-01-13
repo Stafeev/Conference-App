@@ -603,15 +603,19 @@ class ConferenceApi(remote.Service):
 
         # convert dates from strings to Date objects
         if data['date']:
-            data['date'] = datetime.strptime(data['date'][:10], "%H:%M").time()
+            #data['date'] = datetime.strptime(data['date'][:10], "%H:%M").time()
+            data['date']=datetime.strptime(data['date'][:10], "%m/%d/%y").date()
 
         # generate Conference Key from webSafeConferenceKey
         # allocate session's id by setting conference key as a parent
-        c_key = ndb.Key(urlsafe=request.websafeConferenceKey)
+
+
+        c_key =ndb.Key(urlsafe=request.websafeConferenceKey)
+        conf = c_key.get()
+        confOrganizerId=conf.organizerUserId
+
         s_id = Session.allocate_ids(size=1, parent=c_key)[0]
         s_key = ndb.Key(Session, s_id, parent=c_key)
-        conf = c_key.get()
-        confOrganizerId=ndb.Key(Profile, conf.organizerUserId)
 
         data['key'] = s_key
         #check if a session is added by a conference organizer
@@ -624,7 +628,8 @@ class ConferenceApi(remote.Service):
         # setting featured speaker and sessions.
         #taskqueue.add(params={'speakerKey': data['speakerKey'], 'speakerDisplayName': data['speaker']},
         #              url='/tasks/set_featured_speaker')
-        taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key},
+        taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key,
+                              'speaker':data['speaker']},
                       url='/tasks/set_featured_speaker')
 
         # return SessionForm object
