@@ -27,6 +27,7 @@ App Engine application for the Udacity training course.
 ## Task 1
 Session and Speaker classes were first implemented in models.py. Conference.py contains corresponding endpoints and methods.
 Base class Session has the following fileds:
+
     - name            = ndb.StringProperty(required=True) 
     - highlights      = ndb.StringProperty()
     - speaker         = ndb.StringProperty()
@@ -38,6 +39,7 @@ Base class Session has the following fileds:
     
 speakerKey is a speakerID key. Speaker is the name of the speaker and it's used in getSessionsBySpeaker, for example, to query sessions by Speaker name.
 Speaker class is implemented with the following fields:
+
     * displayName = ndb.StringProperty(required=True)
     * profileKey = ndb.StringProperty() - profile key is used if speaker is also an atendee
     * biography = ndb.StringProperty()
