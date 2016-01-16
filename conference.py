@@ -61,7 +61,7 @@ DEFAULTS = {
     "topics": ["Default", "Topic"],
 }
 SESSION_DEF = {
-    "speaker": "Unknown",
+    "speakerKey": "Unknown",
     "duration": 60,
     "typeOfSession": "Keynote",
 }
@@ -107,7 +107,7 @@ WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
 )
 SPEAKER_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
-    speaker=messages.StringField(1, required=True),
+    speakerKey=messages.StringField(1, required=True),
 )
 QUERY_POST_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
@@ -127,7 +127,7 @@ SESSION_BY_TYPE_POST_REQUEST = endpoints.ResourceContainer(
 
 SESSION_BY_SPEAKER_POST_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
-    speaker=messages.StringField(1),
+    speakerKey=messages.StringField(1),
 )
 
 
@@ -627,8 +627,7 @@ class ConferenceApi(remote.Service):
         Session(**data).put()
 
         # setting featured speaker and sessions.
-        taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key,
-                              'speaker':data['speaker']},
+        taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key},
                       url='/tasks/set_featured_speaker')
 
         # return SessionForm object
@@ -639,7 +638,7 @@ class ConferenceApi(remote.Service):
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
         if not request.displayName:
-            raise endpoints.BadRequestException("Speaker 'diplayName' field required")
+            raise endpoints.BadRequestException("Speaker 'displayName' field required")
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
         del data['websafeKey']
         sp_id = Speaker.allocate_ids(size=1)[0]
@@ -712,7 +711,7 @@ class ConferenceApi(remote.Service):
                       http_method='GET', name='getSessionsBySpeaker')
     def getSessionsBySpeaker(self, request):
         """Return requested sessions (by speaker)."""
-        sessions = Session.query(Session.speaker == request.speaker)
+        sessions = Session.query(Session.speakerKey == request.speakerKey)
 
         return SessionForms(
             items=[self._copySessionToForm(sess) for sess in sessions]

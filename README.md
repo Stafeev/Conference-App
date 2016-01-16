@@ -38,6 +38,8 @@ Base class Session has the following fileds:
     - speakerKey      = ndb.StringProperty()
     
 speakerKey is a speakerID key. Speaker is the name of the speaker and it's used in getSessionsBySpeaker, for example, to query sessions by Speaker name.
+Speaker field was actually unnessary, we can quaery object by speakerKey which is unique identifier to get necessary data.
+
 Speaker class is implemented with the following fields:
 
     - displayName = ndb.StringProperty(required=True)
