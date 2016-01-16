@@ -113,12 +113,12 @@ class Session(ndb.Model):
     """Session -- Session object"""
     name            = ndb.StringProperty(required=True)
     highlights      = ndb.StringProperty()
-    speaker         = ndb.StringProperty()
+    speaker         = ndb.StringProperty(required=True)
     duration        = ndb.IntegerProperty()
     typeOfSession   = ndb.StringProperty()
     date            = ndb.DateProperty()
     startTime       = ndb.TimeProperty()
-    speakerKey      = ndb.StringProperty()
+    speakerKey      = ndb.KeyProperty()
 
 class SessionForm(messages.Message):
     """SessionForm -- Session outbound form message"""

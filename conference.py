@@ -614,20 +614,19 @@ class ConferenceApi(remote.Service):
         conf = c_key.get()
         confOrganizerId=conf.organizerUserId
 
+        #check if a session is added by a conference organizer
+        if (getUserId(user)!=confOrganizerId):
+            raise endpoints.UnauthorizedException('Session can be added only by conference organizer')
+
         s_id = Session.allocate_ids(size=1, parent=c_key)[0]
         s_key = ndb.Key(Session, s_id, parent=c_key)
 
         data['key'] = s_key
-        #check if a session is added by a conference organizer
-        if (getUserId(user)!=confOrganizerId):
-            raise endpoints.UnauthorizedException('Session can be added only by conference organizer')
 
         # create Session object and put it into DB
         Session(**data).put()
 
         # setting featured speaker and sessions.
-        #taskqueue.add(params={'speakerKey': data['speakerKey'], 'speakerDisplayName': data['speaker']},
-        #              url='/tasks/set_featured_speaker')
         taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key,
                               'speaker':data['speaker']},
                       url='/tasks/set_featured_speaker')
