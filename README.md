@@ -40,25 +40,27 @@ Base class Session has the following fileds:
 speakerKey is a speakerID key. Speaker is the name of the speaker and it's used in getSessionsBySpeaker, for example, to query sessions by Speaker name.
 Speaker class is implemented with the following fields:
 
-    * displayName = ndb.StringProperty(required=True)
-    * profileKey = ndb.StringProperty() - profile key is used if speaker is also an atendee
-    * biography = ndb.StringProperty()
+    - displayName = ndb.StringProperty(required=True)
+    - profileKey = ndb.StringProperty() - profile key is used if speaker is also an atendee
+    - biography = ndb.StringProperty()
     
 Methods to work with Speaker:
-    * _createSpeakerObject(self, request) - creates Speaker object
-    * addSpeaker(self, request) - add Speaker
+    - _createSpeakerObject(self, request) - creates Speaker object
+    - addSpeaker(self, request) - add Speaker
     
 For Sessions:
-    * getConferenceSessions - return requested sessions for the conference (by websafeConferenceKey)
-    * getConferenceSessionsByType - return requested sessions for the conference (by websafeConferenceKey and type of session)
-    * getSessionsBySpeaker(self, request) - return requested sessions (by speaker)
-    * _sessionAdd(self, request) is used to add sessions from user's list of sessions (sessionKeysWishList)
-    * _sessionRemove(self, request) is used to delete sessions from user's list of sessions (sessionKeysWishList)
+
+    - getConferenceSessions - return requested sessions for the conference (by websafeConferenceKey)
+    - getConferenceSessionsByType - return requested sessions for the conference (by websafeConferenceKey and type of session)
+    - getSessionsBySpeaker(self, request) - return requested sessions (by speaker)
+    - _sessionAdd(self, request) is used to add sessions from user's list of sessions (sessionKeysWishList)
+    - _sessionRemove(self, request) is used to delete sessions from user's list of sessions (sessionKeysWishList)
     
 The flow of calls
-    * create a conference
-    * create a speaker
-    * create a session, using the speaker key returned in the second step
+
+    - create a conference
+    - create a speaker
+    - create a session, using the speaker key returned in the second step
 ## Task 2
 I added to profile class field sessionKeysWishList = ndb.StringProperty(repeated=True) to store a wishlist of sessions.Also we have to followng endpoint methods.
 
