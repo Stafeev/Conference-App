@@ -61,7 +61,7 @@ DEFAULTS = {
     "topics": ["Default", "Topic"],
 }
 SESSION_DEF = {
-    "speaker": "Unknown",
+    "speakerKey": "Unknown",
     "duration": 60,
     "typeOfSession": "Keynote",
 }
@@ -107,7 +107,7 @@ WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
 )
 SPEAKER_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
-    speaker=messages.StringField(1, required=True),
+    speakerKey=messages.StringField(1, required=True),
 )
 QUERY_POST_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
@@ -627,8 +627,12 @@ class ConferenceApi(remote.Service):
         Session(**data).put()
 
         # setting featured speaker and sessions.
+<<<<<<< HEAD
+        taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key},
+=======
         taskqueue.add(params={'speakerKey': data['speakerKey'], 'websafeConferenceKey': c_key,
                               'speaker':data['speaker']},
+>>>>>>> d3793e9
                       url='/tasks/set_featured_speaker')
 
         # return SessionForm object
