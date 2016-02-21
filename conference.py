@@ -11,6 +11,7 @@ __author__ = 'Artem Stafeev'
 from datetime import datetime
 
 import endpoints
+import logging
 from protorpc import messages
 from protorpc import message_types
 from protorpc import remote
@@ -298,6 +299,7 @@ class ConferenceApi(remote.Service):
     def _getQuery(self, request):
         """Return formatted query from the submitted filters."""
         q = Conference.query()
+
         inequality_filter, filters = self._formatFilters(request.filters)
 
         # If exists, sort on inequality filter first
@@ -312,6 +314,7 @@ class ConferenceApi(remote.Service):
                 filtr["value"] = int(filtr["value"])
             formatted_query = ndb.query.FilterNode(filtr["field"], filtr["operator"], filtr["value"])
             q = q.filter(formatted_query)
+
         return q
 
     def _formatFilters(self, filters):
@@ -352,17 +355,21 @@ class ConferenceApi(remote.Service):
         # need to fetch organiser displayName from profiles
         # get all keys and use get_multi for speed
         organisers = [(ndb.Key(Profile, conf.organizerUserId)) for conf in conferences]
+        logging.info(organisers)
+        logging.info(conferences)
+
         profiles = ndb.get_multi(organisers)
+        logging.info(profiles)
 
         # put display names in a dict for easier fetching
         names = {}
         for profile in profiles:
-            names[profile.key.id()] = profile.displayName
+            if profile is not None:
+                names[profile.key.id()] = profile.displayName
 
         # return individual ConferenceForm object per Conference
         return ConferenceForms(
-            items=[self._copyConferenceToForm(conf, names[conf.organizerUserId]) for conf in \
-                   conferences]
+            items=[self._copyConferenceToForm(conf, names[conf.organizerUserId]) for conf in conferences]
         )
 
     # - - - Profile objects - - - - - - - - - - - - - - - - - - -
@@ -525,6 +532,13 @@ class ConferenceApi(remote.Service):
         return self._conferenceRegistration(request, reg=False)
 
     # - - - Announcements - - - - - - - - - - - - - - - - - - - -
+    @staticmethod
+    def _cacheFeaturedSpeaker(speaker):
+        """add featured speaker to memcache;
+        """
+        featuredSpeaker = "Feaured speaker is" + speaker
+        memcache.set(MEMCACHE_SPEAKER_KEY, featuredSpeaker)
+        return featuredSpeaker
 
     @staticmethod
     def _cacheAnnouncement():
@@ -602,17 +616,19 @@ class ConferenceApi(remote.Service):
                 data[df] = SESSION_DEF[df]
 
         # convert dates from strings to Date objects
-        if data['date']:
-            #data['date'] = datetime.strptime(data['date'][:10], "%H:%M").time()
-            data['date']=datetime.strptime(data['date'][:10], "%m/%d/%y").date()
+        date = request.get_assigned_value('date')
+        if date is not None:
+            date['date']=datetime.strptime(date[:10], "%m/%d/%y").date()
 
         # generate Conference Key from webSafeConferenceKey
         # allocate session's id by setting conference key as a parent
 
 
         c_key =ndb.Key(urlsafe=request.websafeConferenceKey)
+
         conf = c_key.get()
-        confOrganizerId=conf.organizerUserId
+        if conf is not None:
+            confOrganizerId=conf.organizerUserId
 
         s_id = Session.allocate_ids(size=1, parent=c_key)[0]
         s_key = ndb.Key(Session, s_id, parent=c_key)
@@ -669,7 +685,7 @@ class ConferenceApi(remote.Service):
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='createSession/{websafeConferenceKey}',
                       http_method='POST', name='createSession')
     def createSession(self, request):
-        """Create new conference."""
+        """Create new session."""
         return self._createSessionObject(request)
 
     @endpoints.method(SESSION_BY_CONF_POST_REQUEST, SessionForms,
