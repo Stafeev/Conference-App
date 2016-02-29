@@ -533,12 +533,19 @@ class ConferenceApi(remote.Service):
 
     # - - - Announcements - - - - - - - - - - - - - - - - - - - -
     @staticmethod
-    def _cacheFeaturedSpeaker(speaker):
+    def _cacheFeaturedSpeaker(speaker, wsConferenceKey):
         """add featured speaker to memcache;
         """
-        featuredSpeaker = "Feaured speaker is" + speaker
-        memcache.set(MEMCACHE_SPEAKER_KEY, featuredSpeaker)
-        return featuredSpeaker
+        # determine the number of sessions belonging to the speaker within the SAME conference.
+        sessions = Session.query(ancestor=ndb.Key(urlsafe=wsConferenceKey))
+        sessions = sessions.filter(Session.speaker == speaker).fetch()
+
+        # if the count is greater than 1, then create a single MEMCACHE message containing both speaker/session names
+        if len(sessions) > 1:
+            key = MEMCACHE_SPEAKER_KEY + wsConferenceKey
+            s_name = (s.name for s in sessions)
+            msg = 'Speaker: %s. Sessions: %s' % (speaker, ', '.join(s_name))
+            memcache.set(key, msg)
 
     @staticmethod
     def _cacheAnnouncement():
@@ -616,14 +623,14 @@ class ConferenceApi(remote.Service):
                 data[df] = SESSION_DEF[df]
 
         # convert dates from strings to Date objects
-        date = request.get_assigned_value('date')
-        if date is not None:
-            date['date']=datetime.strptime(date[:10], "%m/%d/%y").date()
+        if data['date'] is not None:
+            data['date']=datetime.strptime(data['date'], '%Y-%m-%d').date()
+
+        if data['startTime'] is not None:
+            data['startTime'] = datetime.strptime(data['startTime'], '%H:%M').time()
 
         # generate Conference Key from webSafeConferenceKey
         # allocate session's id by setting conference key as a parent
-
-
         c_key =ndb.Key(urlsafe=request.websafeConferenceKey)
 
         conf = c_key.get()
@@ -634,6 +641,7 @@ class ConferenceApi(remote.Service):
         s_key = ndb.Key(Session, s_id, parent=c_key)
 
         data['key'] = s_key
+
         #check if a session is added by a conference organizer
         if (getUserId(user)!=confOrganizerId):
             raise endpoints.UnauthorizedException('Session can be added only by conference organizer')
@@ -653,15 +661,19 @@ class ConferenceApi(remote.Service):
 
     def _createSpeakerObject(self, request):
         user = endpoints.get_current_user()
+        # check if user is authrorized and displayName is presented
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
         if not request.displayName:
-            raise endpoints.BadRequestException("Speaker 'diplayName' field required")
+            raise endpoints.BadRequestException("Speaker 'displayName' field required")
+
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
         del data['websafeKey']
         sp_id = Speaker.allocate_ids(size=1)[0]
         sp_key = ndb.Key(Speaker, sp_id)
         data['key'] = sp_key
+
+        # save data
         sp = Speaker(**data)
         sp.put()
         return self._copySpeakerToForm(sp)
@@ -864,7 +876,6 @@ class ConferenceApi(remote.Service):
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
         if not request.websafeConferenceKey:
             raise endpoints.NotFoundException('No conference found with key: %s' % request.websafeConferenceKey)
-        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
         # query session by ancestor
         sessions = Session.query(ancestor=conf.key).filter(Session.date >= datetime.now()) \
             .order(Session.date, Session.startTime).fetch()

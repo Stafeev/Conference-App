@@ -60,7 +60,7 @@ The flow of calls
 
     - create a conference
     - create a speaker
-    - create a session, using the speaker key returned in the second step
+    - create a session, using the websafeConference from the first step
 ## Task 2
 I added to profile class field sessionKeysWishList = ndb.StringProperty(repeated=True) to store a wishlist of sessions.Also we have to followng endpoint methods.
 
@@ -81,13 +81,15 @@ Also there is endpoint to add Speaker:
         return self._createSpeakerObject(request)
 ```
 
-Queries are only allowed to have one inequality filter, and it would cause a BadRequestError to filter on both startDate and typeOfSession.
+As discussed in lecture video an inequality filter can be applied to at most one property. 
+if we apply an inequality filter to more than one properties, this would cause a BadRequestError to filter on both startDate and typeOfSession.
 So we need to code this inside method queryProblem(self, request):
 ```python
         sessionsByStartTime = Session.query(Session.startTime < request.startTime)
         sessionsByType = Session.query(Session.typeOfSession == request.typeOfSession)
 ```
-Here we choose all sessions which starttime is before requested start time (7 am, for example).
+Here we choose all sessions which starttime is before requested start time (15:00, for example - which is 3 pm).
+request.startTime represents ndb.TimeProperty() using python time conversion datetime.strptime(data['startTime'], '%H:%M').time()
 
 Then we query sessions by type. Then we iterate over sessionsByType and check that this session is not in sessionsByStartTime and then add it to the dictionary and output the result.
 
